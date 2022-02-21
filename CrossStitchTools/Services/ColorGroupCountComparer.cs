@@ -1,6 +1,6 @@
 ﻿using CrossStitchTools.Models;
 
-namespace CrossStitchTools;
+namespace CrossStitchTools.Services;
 
 internal class ColorGroupCountComparer : System.Collections.Generic.IComparer<ColorGroup>
 {
