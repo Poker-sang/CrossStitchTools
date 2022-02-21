@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "CrossStitchTools (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "CrossStitchTools (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

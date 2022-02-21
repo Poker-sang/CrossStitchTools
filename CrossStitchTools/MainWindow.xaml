@@ -1,0 +1,29 @@
+﻿<Window
+    x:Class="CrossStitchTools.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:CrossStitchTools"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:CommunityToolkit.WinUI.UI"
+    xmlns:views="using:CrossStitchTools.Views"
+    mc:Ignorable="d">
+    <NavigationView
+        x:Name="NavigationView"
+        BackRequested="BackRequested"
+        IsSettingsVisible="False"
+        ItemInvoked="ItemInvoked"
+        Loaded="Loaded"
+        OpenPaneLength="{x:Bind PaneWidth, Mode=OneWay}"
+        PaneDisplayMode="Left"
+        PaneTitle="TagsTree"
+        SizeChanged="OnSizeChanged">
+        <NavigationView.MenuItems>
+            <NavigationViewItem
+                Content="主页"
+                Icon="{ui:FontIcon Glyph=&#xE80F;}"
+                Tag="{x:Bind views:IndexPage.TypeGetter}" />
+        </NavigationView.MenuItems>
+        <Frame x:Name="NavigateFrame" />
+    </NavigationView>
+</Window>
