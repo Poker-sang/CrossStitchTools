@@ -32,7 +32,6 @@ public sealed partial class MainWindow : Window
         OnPropertyChanged(nameof(PaneWidth));
     }
 
-
     private void BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs e)
     {
         NavigateFrame.GoBack();

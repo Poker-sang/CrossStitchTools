@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "CrossStitchTools (Package)": {
+    "CrossStitchTools": {
       "commandName": "MsixPackage"
     },
     "CrossStitchTools (Unpackaged)": {

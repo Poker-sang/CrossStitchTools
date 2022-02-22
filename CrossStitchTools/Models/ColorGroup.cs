@@ -13,6 +13,15 @@ public class ColorGroup
         Set.Add(Represent);
     }
 
+    public static bool operator ==(ColorGroup? a, ColorGroup? b)
+    {
+        if (a is null || b is null)
+            return false;
+        return a.Represent == b.Represent;
+    }
+
+    public static bool operator !=(ColorGroup a, ColorGroup b) => !(a == b);
+
     public Rgba32 Represent;
     public readonly HashSet<Rgba32> Set = new();
 

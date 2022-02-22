@@ -16,7 +16,7 @@
         Loaded="Loaded"
         OpenPaneLength="{x:Bind PaneWidth, Mode=OneWay}"
         PaneDisplayMode="Left"
-        PaneTitle="TagsTree"
+        PaneTitle="Cross Stitch Tools"
         SizeChanged="OnSizeChanged">
         <NavigationView.MenuItems>
             <NavigationViewItem
