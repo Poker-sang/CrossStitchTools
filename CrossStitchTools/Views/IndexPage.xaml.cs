@@ -39,13 +39,13 @@ public sealed partial class IndexPage : Page, ITypeGetter
         }
     }
 
-    private FileStream? _fileStream;
-    private FileStream? FileStream
+    private MemoryStream? _memoryStream;
+    private MemoryStream? MemoryStream
     {
-        get => _fileStream;
+        get => _memoryStream;
         set
         {
-            _fileStream = value;
+            _memoryStream = value;
             BSave.IsEnabled = BAction.IsEnabled = value is not null;
             BToggle.IsEnabled = false;
             BAction.Content = "Action";
@@ -65,7 +65,18 @@ public sealed partial class IndexPage : Page, ITypeGetter
     private readonly BitmapImage _selectColorBitmap = new();
     private int ImageWidth => _originImage!.Width;
     private int ImageHeight => _originImage!.Height;
-    private int ImageWidthScale { get; set; } = 1;
+
+    private int _imageWidthScale = 1;
+    private int ImageWidthScale
+    {
+        get => _imageWidthScale;
+        set
+        {
+            _imageWidthScale = value;
+            OnPropertyChanged(nameof(PixelLength));
+        }
+    }
+
     private int ImageHeightScale => ImageWidthScale * ImageHeight / ImageWidth;
 
     [ObservableProperty] private List<ColorGroup> _itemList = null!;
@@ -98,16 +109,20 @@ public sealed partial class IndexPage : Page, ITypeGetter
     {
         if (await FileSystemHelper.GetStorageFile() is { } file)
         {
-            if (FileStream is not null)
+            if (MemoryStream is not null)
             {
-                FileStream.Close();
-                await FileStream.DisposeAsync();
+                MemoryStream.Close();
+                await MemoryStream.DisposeAsync();
             }
-            FileStream = new FileStream(file.Path, FileMode.Open);
-            await _originBitmap.SetSourceAsync(FileStream.AsRandomAccessStream());
-            FileStream.Position = 0;
-            _originImage = await Image.LoadAsync<Rgba32>(FileStream);
-            TbPixel.Text = ImageWidth + "x" + ImageWidth;
+
+            MemoryStream = new();
+            await MemoryStream.WriteAsync(await File.ReadAllBytesAsync(file.Path));
+            MemoryStream.Position = 0;
+            await _originBitmap.SetSourceAsync(MemoryStream.AsRandomAccessStream());
+            MemoryStream.Position = 0;
+            _originImage = await Image.LoadAsync<Rgba32>(MemoryStream);
+            ImageWidthScale = 1;
+            TbPixel.Text = $"{ImageWidth}x{ImageHeight}";
             SetImageSource(_originBitmap, ImageDisplaying.Origin, false);
             BAction.IsEnabled = true;
             BAction.Content = "Action";
@@ -119,7 +134,7 @@ public sealed partial class IndexPage : Page, ITypeGetter
 
     private async void BActionClick(object sender, RoutedEventArgs e)
     {
-        if (FileStream is null || _originImage is null)
+        if (MemoryStream is null || _originImage is null)
             return;
         BAction.IsEnabled = false;
         BAction.Content = "Acted";
@@ -131,7 +146,6 @@ public sealed partial class IndexPage : Page, ITypeGetter
         _afterImage = null;
         _selectColorImage?.Dispose();
         _selectColorImage = null;
-        ImageWidthScale = 1;
         GC.Collect();
 
         var colorErr = (int)(NbColor.Value is double.NaN ? 50 : NbColor.Value);
@@ -353,8 +367,8 @@ public sealed partial class IndexPage : Page, ITypeGetter
 
         var xBitmap = currentPoint.X / BitmapScale - left;
         var yBitmap = currentPoint.Y / BitmapScale - top;
-        var xPixel = (int)((currentPoint.X - left) / (BitmapScale * ImageWidthScale));
-        var yPixel = (int)((currentPoint.Y - top) / (BitmapScale * ImageWidthScale));
+        var xPixel = Math.Min((int)((currentPoint.X - left) / (BitmapScale * ImageWidthScale)), ImageWidth);
+        var yPixel = Math.Min((int)((currentPoint.Y - top) / (BitmapScale * ImageWidthScale)), ImageHeight);
 
         LVertical.X1 = LVertical.X2 = (xPixel + 0.5) * BitmapScale * ImageWidthScale + left;
         LHorizontal.Y1 = LHorizontal.Y2 = (yPixel + 0.5) * BitmapScale * ImageHeightScale + top;
