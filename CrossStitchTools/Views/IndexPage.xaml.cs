@@ -148,12 +148,12 @@ public sealed partial class IndexPage : Page, ITypeGetter
 
         var colorErr = (int)(NbColor.Value is double.NaN ? 50 : NbColor.Value);
         var countErr = (int)(NbCount.Value is double.NaN ? 50 : NbCount.Value);
-        PixelLength = (int)(NbWidth.Value is double.NaN ? 8 : NbWidth.Value);
+        PixelLength = (int)(NbPixelLength.Value is double.NaN ? 8 : NbPixelLength.Value);
 
         _afterImage = new Image<Rgba32>(ImageWidth, ImageHeight);
         var dict = new Dictionary<Rgba32, int>();
-        for (var y = 0; y < ImageHeight; ++y)
-            for (var x = 0; x < ImageWidth; ++x)
+        for (var y = 0; y < ImageHeight; y += PixelLength)
+            for (var x = 0; x < ImageWidth; x += PixelLength)
             {
                 var tempColor = _originImage[x, y];
                 dict[tempColor] = dict.ContainsKey(tempColor) ? dict[tempColor] + 1 : 1;
@@ -205,7 +205,7 @@ public sealed partial class IndexPage : Page, ITypeGetter
             }
 
         ItemList = itemList;
-
+        TbColor.Text = $"颜色数：{itemList.Count}";
 
         for (var y = 0; y < ImageHeight; y += PixelLength)
             for (var x = 0; x < ImageWidth; x += PixelLength)

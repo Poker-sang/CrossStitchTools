@@ -36,7 +36,7 @@
             <NumberBox
                 x:Name="NbColor"
                 uiControls:DockPanel.Dock="Top"
-                Header="色差"
+                Header="容差"
                 Minimum="1"
                 SmallChange="1"
                 Value="50">
@@ -64,7 +64,7 @@
                 </NumberBox.NumberFormatter>
             </NumberBox>
             <NumberBox
-                x:Name="NbWidth"
+                x:Name="NbPixelLength"
                 uiControls:DockPanel.Dock="Top"
                 Header="长缩比例"
                 Minimum="1"
@@ -79,6 +79,7 @@
                 </NumberBox.NumberFormatter>
             </NumberBox>
             <TextBlock x:Name="TbPixel" uiControls:DockPanel.Dock="Top" />
+            <TextBlock x:Name="TbColor" uiControls:DockPanel.Dock="Top" />
             <TextBlock x:Name="TbPointer" uiControls:DockPanel.Dock="Top" />
         </uiControls:DockPanel>
 
