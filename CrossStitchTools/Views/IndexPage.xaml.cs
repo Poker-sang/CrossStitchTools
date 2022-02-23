@@ -66,22 +66,20 @@ public sealed partial class IndexPage : Page, ITypeGetter
     private int ImageWidth => _originImage!.Width;
     private int ImageHeight => _originImage!.Height;
 
-    private int _imageWidthScale = 1;
-    private int ImageWidthScale
+    private int _pixelLength = 1;
+    private int PixelLength
     {
-        get => _imageWidthScale;
+        get => _pixelLength;
         set
         {
-            _imageWidthScale = value;
-            OnPropertyChanged(nameof(PixelLength));
+            _pixelLength = value;
+            OnPropertyChanged(nameof(PixelActualLength));
         }
     }
 
-    private int ImageHeightScale => ImageWidthScale * ImageHeight / ImageWidth;
-
     [ObservableProperty] private List<ColorGroup> _itemList = null!;
 
-    private double PixelLength => BitmapScale * ImageWidthScale;
+    private double PixelActualLength => BitmapScale * PixelLength;
 
     private float BitmapScale
     {
@@ -89,7 +87,7 @@ public sealed partial class IndexPage : Page, ITypeGetter
         set
         {
             IBitmap.Scale = new Vector3(value, value, 1);
-            OnPropertyChanged(nameof(PixelLength));
+            OnPropertyChanged(nameof(PixelActualLength));
         }
     }
 
@@ -121,7 +119,7 @@ public sealed partial class IndexPage : Page, ITypeGetter
             await _originBitmap.SetSourceAsync(MemoryStream.AsRandomAccessStream());
             MemoryStream.Position = 0;
             _originImage = await Image.LoadAsync<Rgba32>(MemoryStream);
-            ImageWidthScale = 1;
+            PixelLength = 1;
             TbPixel.Text = $"{ImageWidth}x{ImageHeight}";
             SetImageSource(_originBitmap, ImageDisplaying.Origin, false);
             BAction.IsEnabled = true;
@@ -150,7 +148,7 @@ public sealed partial class IndexPage : Page, ITypeGetter
 
         var colorErr = (int)(NbColor.Value is double.NaN ? 50 : NbColor.Value);
         var countErr = (int)(NbCount.Value is double.NaN ? 50 : NbCount.Value);
-        ImageWidthScale = (int)(NbWidth.Value is double.NaN ? 50 : NbWidth.Value);
+        PixelLength = (int)(NbWidth.Value is double.NaN ? 8 : NbWidth.Value);
 
         _afterImage = new Image<Rgba32>(ImageWidth, ImageHeight);
         var dict = new Dictionary<Rgba32, int>();
@@ -168,8 +166,8 @@ public sealed partial class IndexPage : Page, ITypeGetter
                 itemList.Add(new ColorGroup(key));
 
         //计数，第一次合并
-        for (var y = 0; y < ImageHeight; y += ImageHeightScale)
-            for (var x = 0; x < ImageWidth; x += ImageWidthScale)
+        for (var y = 0; y < ImageHeight; y += PixelLength)
+            for (var x = 0; x < ImageWidth; x += PixelLength)
             {
                 var tempColor = _originImage[x, y];
                 var min = 0;
@@ -209,16 +207,16 @@ public sealed partial class IndexPage : Page, ITypeGetter
         ItemList = itemList;
 
 
-        for (var y = 0; y < ImageHeight; y += ImageHeightScale)
-            for (var x = 0; x < ImageWidth; x += ImageWidthScale)
+        for (var y = 0; y < ImageHeight; y += PixelLength)
+            for (var x = 0; x < ImageWidth; x += PixelLength)
             {
                 var tempColor = _originImage[x, y];
                 var min = 0;
                 for (var k = 1; k < itemList.Count; ++k)
                     if (itemList[min].GetErr(tempColor) > itemList[k].GetErr(tempColor))
                         min = k;
-                for (var xi = 0; xi < ImageHeightScale; ++xi)
-                    for (var yi = 0; yi < ImageWidthScale; ++yi)
+                for (var xi = 0; xi < PixelLength; ++xi)
+                    for (var yi = 0; yi < PixelLength; ++yi)
                         _afterImage[x + xi, y + yi] = itemList[min].Represent;
                 ++itemList[min].Count;
             }
@@ -367,11 +365,11 @@ public sealed partial class IndexPage : Page, ITypeGetter
 
         var xBitmap = currentPoint.X / BitmapScale - left;
         var yBitmap = currentPoint.Y / BitmapScale - top;
-        var xPixel = Math.Min((int)((currentPoint.X - left) / (BitmapScale * ImageWidthScale)), ImageWidth);
-        var yPixel = Math.Min((int)((currentPoint.Y - top) / (BitmapScale * ImageWidthScale)), ImageHeight);
+        var xPixel = Math.Min((int)((currentPoint.X - left) / (BitmapScale * PixelLength)) * PixelLength, ImageWidth - 1);
+        var yPixel = Math.Min((int)((currentPoint.Y - top) / (BitmapScale * PixelLength)) * PixelLength, ImageHeight - 1);
 
-        LVertical.X1 = LVertical.X2 = (xPixel + 0.5) * BitmapScale * ImageWidthScale + left;
-        LHorizontal.Y1 = LHorizontal.Y2 = (yPixel + 0.5) * BitmapScale * ImageHeightScale + top;
+        LVertical.X1 = LVertical.X2 = (xPixel + 0.5 * PixelLength) * BitmapScale + left;
+        LHorizontal.Y1 = LHorizontal.Y2 = (yPixel + 0.5 * PixelLength) * BitmapScale + top;
 
         _currentCoordinate = ImageDisplaying switch
         {
@@ -381,7 +379,7 @@ public sealed partial class IndexPage : Page, ITypeGetter
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        TbPointer.Text = $"Pointer:\nX:{xBitmap:F2}\nY:{yBitmap:F2}\nPixel:\nX:{xPixel}\nY:{yPixel}\n{_currentCoordinate.Color.GetName()}";
+        TbPointer.Text = $"Pointer:\nX:{xBitmap:F2}\nY:{yBitmap:F2}\nPixel:\nX:{xPixel / PixelLength}\nY:{yPixel / PixelLength}\n{_currentCoordinate.Color.GetName()}";
     }
 
     #endregion
