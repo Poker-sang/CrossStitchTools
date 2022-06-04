@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CrossStitchTools.Enums;
-using CrossStitchTools.Interfaces;
 using CrossStitchTools.Models;
 using CrossStitchTools.Services;
 using Microsoft.UI.Xaml;
@@ -22,7 +21,7 @@ using Point = Windows.Foundation.Point;
 namespace CrossStitchTools.Views;
 
 [INotifyPropertyChanged]
-public sealed partial class IndexPage : Page, ITypeGetter
+public sealed partial class IndexPage : Page
 {
     public IndexPage() => InitializeComponent();
 

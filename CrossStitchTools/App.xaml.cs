@@ -9,10 +9,7 @@ public partial class App : Application
     public static Frame RootFrame { get; set; } = null!;
     public static MainWindow Window { get; private set; } = null!;
 
-    public App()
-    {
-        InitializeComponent();
-    }
+    public App() => InitializeComponent();
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
