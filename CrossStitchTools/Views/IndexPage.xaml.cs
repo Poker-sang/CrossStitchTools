@@ -87,6 +87,7 @@ public sealed partial class IndexPage : Page, ITypeGetter
         set
         {
             IBitmap.Scale = new Vector3(value, value, 1);
+            OnPropertyChanged(nameof(BitmapScale));
             OnPropertyChanged(nameof(PixelActualLength));
         }
     }
@@ -124,8 +125,6 @@ public sealed partial class IndexPage : Page, ITypeGetter
             SetImageSource(_originBitmap, ImageDisplaying.Origin, false);
             BAction.IsEnabled = true;
             BAction.Content = "Action";
-            LHorizontal.X2 = ImageWidth;
-            LVertical.Y2 = ImageHeight;
             RectSizeChanged();
         }
     }
@@ -304,7 +303,13 @@ public sealed partial class IndexPage : Page, ITypeGetter
         AimChanged(_lastPoint);
     }
 
-    private void CanvasOnSizeChanged(object sender, SizeChangedEventArgs e) => RectSizeChanged();
+    private void CanvasOnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        RectSizeChanged();
+        AimChanged(_lastPoint);
+        LHorizontal.X2 = Canvas.ActualWidth;
+        LVertical.Y2 = Canvas.ActualHeight;
+    }
 
     #endregion
 
@@ -361,6 +366,9 @@ public sealed partial class IndexPage : Page, ITypeGetter
 
     private void AimChanged(Point currentPoint)
     {
+        if (_originImage is null)
+            return;
+
         var (left, top) = BitmapPosition;
 
         var xBitmap = currentPoint.X / BitmapScale - left;

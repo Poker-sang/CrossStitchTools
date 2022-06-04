@@ -78,11 +78,14 @@
                     </numberFormatting:DecimalFormatter>
                 </NumberBox.NumberFormatter>
             </NumberBox>
+            <NumberBox
+                uiControls:DockPanel.Dock="Top"
+                Header="放大倍数"
+                Value="{x:Bind BitmapScale, Mode=TwoWay}" />
             <TextBlock x:Name="TbPixel" uiControls:DockPanel.Dock="Top" />
             <TextBlock x:Name="TbColor" uiControls:DockPanel.Dock="Top" />
             <TextBlock x:Name="TbPointer" uiControls:DockPanel.Dock="Top" />
         </uiControls:DockPanel>
-
         <ListView
             x:Name="ListView"
             Width="100"
