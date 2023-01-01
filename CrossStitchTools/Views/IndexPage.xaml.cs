@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CrossStitchTools.Enums;
 using CrossStitchTools.Models;
 using CrossStitchTools.Services;
@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
+using WinUI3Utilities;
 using Image = SixLabors.ImageSharp.Image;
 using Point = Windows.Foundation.Point;
 
@@ -86,7 +87,7 @@ public sealed partial class IndexPage : Page
         set
         {
             IBitmap.Scale = new Vector3(value, value, 1);
-            OnPropertyChanged(nameof(BitmapScale));
+            OnPropertyChanged();
             OnPropertyChanged(nameof(PixelActualLength));
         }
     }
@@ -105,7 +106,7 @@ public sealed partial class IndexPage : Page
 
     private async void BOpenClick(object sender, RoutedEventArgs e)
     {
-        if (await FileSystemHelper.GetStorageFile() is { } file)
+        if (await PickerHelper.PickSingleFileAsync() is { } file)
         {
             if (MemoryStream is not null)
             {
@@ -237,7 +238,7 @@ public sealed partial class IndexPage : Page
     {
         if (_originImage is null || _afterImage is null || _selectColorImage is null)
             return;
-        if (await FileSystemHelper.GetStorageFolder() is { } folder)
+        if (await PickerHelper.PickFolderAsync() is { } folder)
         {
             var saveAsync = ImageDisplaying switch
             {
@@ -269,14 +270,14 @@ public sealed partial class IndexPage : Page
         switch (ImageDisplaying)
         {
             case ImageDisplaying.After:
+            {
+                if (ItemList.Find(color => color.Set.Contains(_currentCoordinate.Color)) is { } colorGroup)
                 {
-                    if (ItemList.Find(color => color.Set.Contains(_currentCoordinate.Color)) is { } colorGroup)
-                    {
-                        ListView.SelectedIndex = ItemList.IndexOf(colorGroup);
-                        await SelectColor(colorGroup);
-                    }
-                    break;
+                    ListView.SelectedIndex = ItemList.IndexOf(colorGroup);
+                    await SelectColor(colorGroup);
                 }
+                break;
+            }
             case ImageDisplaying.SelectColor when _afterImage is null:
                 return;
             case ImageDisplaying.SelectColor:

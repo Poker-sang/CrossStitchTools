@@ -1,8 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CrossStitchTools.Views;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using WinUI3Utilities;
 
 namespace CrossStitchTools;
 
@@ -12,35 +13,30 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        CurrentContext.TitleBar = TitleBar;
+        CurrentContext.TitleTextBlock = TitleTextBlock;
         App.RootNavigationView = NavigationView;
         App.RootFrame = NavigateFrame;
-        //TODO 标题栏
-        //SetTitleBar(TitleBar);
-    }
-    private double PaneWidth => Math.Max(NavigationView.ActualWidth, NavigationView.CompactModeThresholdWidth) / 4;
-    private void OnSizeChanged(object sender, SizeChangedEventArgs sizeChangedEventArgs)
-    {
-        NavigationView.PaneDisplayMode = NavigationView.ActualWidth < NavigationView.CompactModeThresholdWidth ? NavigationViewPaneDisplayMode.LeftCompact : NavigationViewPaneDisplayMode.Left;
-        OnPropertyChanged(nameof(PaneWidth));
     }
 
     private void Loaded(object sender, RoutedEventArgs e)
     {
+       ((NavigationViewItem)NavigationView.SettingsItem).Tag = typeof(SettingsPage);
+
         _ = NavigateFrame.Navigate(typeof(IndexPage));
         NavigationView.SelectedItem = NavigationView.MenuItems[0];
-        NavigationView.PaneDisplayMode = NavigationViewPaneDisplayMode.Left; //不加就不会显示PaneTitle
-        OnPropertyChanged(nameof(PaneWidth));
     }
 
     private void BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs e)
     {
         NavigateFrame.GoBack();
-        sender.SelectedItem = NavigateFrame.Content switch
+        NavigationView.SelectedItem = NavigateFrame.Content switch
         {
-            IndexPage => sender.MenuItems[0],
-            _ => sender.SelectedItem
+            IndexPage => NavigationView.MenuItems[0],
+            SettingsPage => NavigationView.SettingsItem,
+            _ => NavigationView.SelectedItem
         };
-        sender.IsBackEnabled = NavigateFrame.CanGoBack;
+        NavigationView.IsBackEnabled = NavigateFrame.CanGoBack;
     }
 
     private void ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs e)
@@ -48,7 +44,7 @@ public sealed partial class MainWindow : Window
         if (e.InvokedItemContainer.Tag is Type item && item != NavigateFrame.Content.GetType())
         {
             _ = NavigateFrame.Navigate(item);
-            sender.IsBackEnabled = true;
+            NavigationView.IsBackEnabled = true;
             GC.Collect();
         }
     }
