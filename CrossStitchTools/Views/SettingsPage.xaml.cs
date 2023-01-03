@@ -21,11 +21,11 @@ public partial class SettingsPage : Page
         if (CurrentContext.Window.Content is FrameworkElement rootElement)
             rootElement.RequestedTheme = selectedTheme;
 
-        Application.Current.Resources["WindowCaptionForeground"] = selectedTheme switch
+        CurrentContext.App.Resources["WindowCaptionForeground"] = selectedTheme switch
         {
             ElementTheme.Dark => Colors.White,
             ElementTheme.Light => Colors.Black,
-            _ => Application.Current.RequestedTheme is ApplicationTheme.Dark ? Colors.White : Colors.Black
+            _ => CurrentContext.App.RequestedTheme is ApplicationTheme.Dark ? Colors.White : Colors.Black
         };
 
         App.AppConfig.Theme = (int)selectedTheme;

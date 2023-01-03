@@ -238,7 +238,7 @@ public sealed partial class IndexPage : Page
     {
         if (_originImage is null || _afterImage is null || _selectColorImage is null)
             return;
-        if (await PickerHelper.PickFolderAsync() is { } folder)
+        if (await PickerHelper.PickSingleFolderAsync() is { } folder)
         {
             var saveAsync = ImageDisplaying switch
             {

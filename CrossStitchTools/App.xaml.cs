@@ -1,5 +1,4 @@
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using WinUI3Utilities;
 
 namespace CrossStitchTools;
@@ -7,8 +6,6 @@ namespace CrossStitchTools;
 public partial class App : Application
 {
     public static AppConfig AppConfig { get; private set; } = null!;
-    public static NavigationView RootNavigationView { get; set; } = null!;
-    public static Frame RootFrame { get; set; } = null!;
 
     public App()
     {
@@ -30,6 +27,6 @@ public partial class App : Application
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         CurrentContext.Window = new MainWindow();
-        AppHelper.Initialize(AppHelper.PredetermineEstimatedWindowSize());
+        AppHelper.Initialize(WindowHelper.PredetermineEstimatedWindowSize());
     }
 }

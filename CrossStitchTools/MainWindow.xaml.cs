@@ -15,15 +15,15 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         CurrentContext.TitleBar = TitleBar;
         CurrentContext.TitleTextBlock = TitleTextBlock;
-        App.RootNavigationView = NavigationView;
-        App.RootFrame = NavigateFrame;
+        CurrentContext.NavigationView = NavigationView;
+        CurrentContext.Frame = NavigateFrame;
     }
 
     private void Loaded(object sender, RoutedEventArgs e)
     {
        ((NavigationViewItem)NavigationView.SettingsItem).Tag = typeof(SettingsPage);
 
-        _ = NavigateFrame.Navigate(typeof(IndexPage));
+       NavigationHelper.GotoPage<IndexPage>();
         NavigationView.SelectedItem = NavigationView.MenuItems[0];
     }
 
@@ -42,10 +42,6 @@ public sealed partial class MainWindow : Window
     private void ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs e)
     {
         if (e.InvokedItemContainer.Tag is Type item && item != NavigateFrame.Content.GetType())
-        {
-            _ = NavigateFrame.Navigate(item);
-            NavigationView.IsBackEnabled = true;
-            GC.Collect();
-        }
+            NavigationHelper.GotoPage(item);
     }
 }
