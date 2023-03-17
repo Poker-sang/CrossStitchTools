@@ -12,6 +12,7 @@ public sealed partial class MainWindow : Window
 {
     public MainWindow()
     {
+        CurrentContext.Window = this;
         InitializeComponent();
         CurrentContext.TitleBar = TitleBar;
         CurrentContext.TitleTextBlock = TitleTextBlock;
@@ -21,10 +22,21 @@ public sealed partial class MainWindow : Window
 
     private void Loaded(object sender, RoutedEventArgs e)
     {
-       ((NavigationViewItem)NavigationView.SettingsItem).Tag = typeof(SettingsPage);
+        NavigationView.SettingsItem.To<NavigationViewItem>().Tag = typeof(SettingsPage);
 
        NavigationHelper.GotoPage<IndexPage>();
         NavigationView.SelectedItem = NavigationView.MenuItems[0];
+    }
+
+    private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        DragZoneHelper.SetDragZones(new()
+        {
+#if DEBUG
+            ExcludeDebugToolbarArea = true,
+#endif
+            DragZoneLeftIndent = (int)NavigationView.CompactPaneLength
+        });
     }
 
     private void BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs e)

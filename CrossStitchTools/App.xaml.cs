@@ -10,7 +10,6 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        CurrentContext.App = this;
         CurrentContext.Title = nameof(CrossStitchTools);
         AppContext.InitializeConfigurationContainer();
         if (AppContext.LoadConfiguration() is not { } appConfigurations
@@ -26,7 +25,7 @@ public partial class App : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        CurrentContext.Window = new MainWindow();
-        AppHelper.Initialize(WindowHelper.PredetermineEstimatedWindowSize());
+        _ = new MainWindow();
+        AppHelper.Initialize(WindowHelper.EstimatedWindowSize());
     }
 }

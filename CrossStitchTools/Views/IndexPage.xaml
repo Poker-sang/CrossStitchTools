@@ -80,6 +80,7 @@
                 </NumberBox.NumberFormatter>
             </NumberBox>
             <NumberBox
+                x:Name="NbBitmapScale"
                 uiControls:DockPanel.Dock="Top"
                 Header="放大倍数"
                 Value="{x:Bind BitmapScale, Mode=TwoWay}" />
@@ -97,7 +98,7 @@
                     <StackPanel
                         Orientation="Horizontal"
                         RightTapped="SubColorSelect"
-                        Tag="{x:Bind This}"
+                        Tag="{x:Bind}"
                         Tapped="ColorSelect">
                         <Rectangle Width="10" Fill="{x:Bind Color}" />
                         <TextBlock Margin="5,5,0,5" Text="{x:Bind Name}" />

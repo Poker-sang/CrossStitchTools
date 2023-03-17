@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CrossStitchTools.Enums;
 using CrossStitchTools.Models;
-using CrossStitchTools.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -15,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
+using Windows.Globalization.NumberFormatting;
 using WinUI3Utilities;
 using Image = SixLabors.ImageSharp.Image;
 using Point = Windows.Foundation.Point;
@@ -24,7 +24,21 @@ namespace CrossStitchTools.Views;
 [INotifyPropertyChanged]
 public sealed partial class IndexPage : Page
 {
-    public IndexPage() => InitializeComponent();
+    public IndexPage()
+    {
+        InitializeComponent();
+
+        NbBitmapScale.NumberFormatter = new DecimalFormatter
+        {
+            IntegerDigits = 1,
+            FractionDigits = 2,
+            NumberRounder = new IncrementNumberRounder
+            {
+                Increment = 0.01,
+                RoundingAlgorithm = RoundingAlgorithm.RoundHalfUp
+            }
+        }; ;
+    }
 
     public static Type TypeGetter => typeof(IndexPage);
 
@@ -177,7 +191,7 @@ public sealed partial class IndexPage : Page
             }
 
         //第二次合并，只保留色差够大的颜色（数量少的颜色被剔除）
-        itemList.Sort(new ColorGroupCountComparer());
+        itemList.Sort((a, b) => a.Count.CompareTo(b.Count));
         if (itemList.Count > 2)
             for (var i = 0; i < itemList.Count;)
             {
@@ -198,7 +212,7 @@ public sealed partial class IndexPage : Page
                 {
                     itemList[leastErrIndex].Merge(itemList[i]);
                     itemList.RemoveAt(i);
-                    itemList.Sort(new ColorGroupCountComparer());
+                    itemList.Sort((a, b) => a.Count.CompareTo(b.Count));
                 }
                 else ++i;
             }
@@ -244,7 +258,7 @@ public sealed partial class IndexPage : Page
             {
                 ImageDisplaying.Origin => _originImage.SaveAsync(folder.Path + "\\Origin.png"),
                 ImageDisplaying.After => _afterImage.SaveAsync(folder.Path + "\\After.png"),
-                ImageDisplaying.SelectColor => _selectColorImage.SaveAsync(folder.Path + $"\\SelectColor {_lastSelectedColor.Represent.GetName()}.png"),
+                ImageDisplaying.SelectColor => _selectColorImage.SaveAsync(folder.Path + $"\\SelectColor {_lastSelectedColor.Represent.ToHex()}.png"),
                 _ => throw new ArgumentOutOfRangeException()
             };
             await saveAsync;
@@ -260,7 +274,7 @@ public sealed partial class IndexPage : Page
     private async void SubColorSelect(object sender, RightTappedRoutedEventArgs e)
     {
         if (((StackPanel)sender).Tag is ColorGroup colorGroup && colorGroup != _lastSelectedColor)
-            if (_lastSelectedSubColor == colorGroup)
+            if (ColorGroup.RepresentEqual(_lastSelectedSubColor, colorGroup))
                 await SelectNewColor(_lastSelectedColor, null);
             else await SelectNewColor(_lastSelectedColor, colorGroup);
     }
@@ -317,7 +331,7 @@ public sealed partial class IndexPage : Page
 
     private async Task SelectColor(ColorGroup color)
     {
-        if (_lastSelectedColor == color)
+        if (ColorGroup.RepresentEqual(_lastSelectedColor, color))
         {
             if (_selectColorImage is null)
                 return;
@@ -387,7 +401,7 @@ public sealed partial class IndexPage : Page
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        TbPointer.Text = $"Pointer:\nX:{xBitmap:F2}\nY:{yBitmap:F2}\nPixel:\nX:{xPixel / PixelLength}\nY:{yPixel / PixelLength}\n{_currentCoordinate.Color.GetName()}";
+        TbPointer.Text = $"Pointer:\nX:{xBitmap:F2}\nY:{yBitmap:F2}\nPixel:\nX:{xPixel / PixelLength}\nY:{yPixel / PixelLength}\n{_currentCoordinate.Color.ToHex()}";
     }
 
     #endregion
