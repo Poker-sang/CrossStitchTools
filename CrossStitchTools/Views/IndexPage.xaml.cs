@@ -100,7 +100,7 @@ public sealed partial class IndexPage : Page
         get => IBitmap.Scale.X;
         set
         {
-            IBitmap.Scale = new Vector3(value, value, 1);
+            IBitmap.Scale = new(value, value, 1);
             OnPropertyChanged();
             OnPropertyChanged(nameof(PixelActualLength));
         }
@@ -163,20 +163,20 @@ public sealed partial class IndexPage : Page
         var countErr = (int)(NbCount.Value is double.NaN ? 50 : NbCount.Value);
         PixelLength = (int)(NbPixelLength.Value is double.NaN ? 8 : NbPixelLength.Value);
 
-        _afterImage = new Image<Rgba32>(ImageWidth, ImageHeight);
+        _afterImage = new(ImageWidth, ImageHeight);
         var dict = new Dictionary<Rgba32, int>();
         for (var y = 0; y < ImageHeight; y += PixelLength)
             for (var x = 0; x < ImageWidth; x += PixelLength)
             {
                 var tempColor = _originImage[x, y];
-                dict[tempColor] = dict.ContainsKey(tempColor) ? dict[tempColor] + 1 : 1;
+                dict[tempColor] = dict.TryGetValue(tempColor, out var value) ? value + 1 : 1;
             }
 
         //只保留数量够多的颜色
         var itemList = new List<ColorGroup>();
         foreach (var (key, value) in dict)
             if (value > countErr)
-                itemList.Add(new ColorGroup(key));
+                itemList.Add(new(key));
 
         //计数，第一次合并
         for (var y = 0; y < ImageHeight; y += PixelLength)
@@ -214,7 +214,8 @@ public sealed partial class IndexPage : Page
                     itemList.RemoveAt(i);
                     itemList.Sort((a, b) => a.Count.CompareTo(b.Count));
                 }
-                else ++i;
+                else
+                    ++i;
             }
 
         ItemList = itemList;
@@ -245,7 +246,8 @@ public sealed partial class IndexPage : Page
     {
         if (BToggle.IsChecked is true)
             SetImageSource(_afterBitmap, ImageDisplaying.After, false);
-        else SetImageSource(_originBitmap, ImageDisplaying.Origin, false);
+        else
+            SetImageSource(_originBitmap, ImageDisplaying.Origin, false);
     }
 
     private async void BSaveClick(object sender, TappedRoutedEventArgs e)
@@ -254,14 +256,13 @@ public sealed partial class IndexPage : Page
             return;
         if (await PickerHelper.PickSingleFolderAsync() is { } folder)
         {
-            var saveAsync = ImageDisplaying switch
+            await (ImageDisplaying switch
             {
                 ImageDisplaying.Origin => _originImage.SaveAsync(folder.Path + "\\Origin.png"),
                 ImageDisplaying.After => _afterImage.SaveAsync(folder.Path + "\\After.png"),
                 ImageDisplaying.SelectColor => _selectColorImage.SaveAsync(folder.Path + $"\\SelectColor {_lastSelectedColor.Represent.ToHex()}.png"),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            await saveAsync;
+                _ => ThrowHelper.ArgumentOutOfRange<ImageDisplaying, Task>(ImageDisplaying)
+            });
         }
     }
 
@@ -276,7 +277,8 @@ public sealed partial class IndexPage : Page
         if (((StackPanel)sender).Tag is ColorGroup colorGroup && colorGroup != _lastSelectedColor)
             if (ColorGroup.RepresentEqual(_lastSelectedSubColor, colorGroup))
                 await SelectNewColor(_lastSelectedColor, null);
-            else await SelectNewColor(_lastSelectedColor, colorGroup);
+            else
+                await SelectNewColor(_lastSelectedColor, colorGroup);
     }
 
     private async void IBitmapOnRightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -349,7 +351,7 @@ public sealed partial class IndexPage : Page
         _lastSelectedColor = newColor;
         _lastSelectedSubColor = subColor;
 
-        _selectColorImage = new Image<Rgba32>(_afterImage.Width, _afterImage.Height);
+        _selectColorImage = new(_afterImage.Width, _afterImage.Height);
         for (var y = 0; y < _afterImage.Height; ++y)
             for (var x = 0; x < _afterImage.Width; ++x)
                 _selectColorImage[x, y] = 0 switch
@@ -398,7 +400,7 @@ public sealed partial class IndexPage : Page
             ImageDisplaying.Origin when _originImage is not null => (xBitmap, yBitmap, _originImage[xPixel, yPixel]),
             ImageDisplaying.After when _afterImage is not null => (xBitmap, yBitmap, _afterImage[xPixel, yPixel]),
             ImageDisplaying.SelectColor when _selectColorImage is not null => (xBitmap, yBitmap, _selectColorImage[xPixel, yPixel]),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => ThrowHelper.ArgumentOutOfRange<ImageDisplaying, (double, double, Rgba32)>(ImageDisplaying)
         };
 
         TbPointer.Text = $"Pointer:\nX:{xBitmap:F2}\nY:{yBitmap:F2}\nPixel:\nX:{xPixel / PixelLength}\nY:{yPixel / PixelLength}\n{_currentCoordinate.Color.ToHex()}";

@@ -1,6 +1,8 @@
-﻿namespace CrossStitchTools.Enums;
+namespace CrossStitchTools.Enums;
 
 public enum ImageDisplaying
 {
-    Origin, After, SelectColor
+    Origin,
+    After,
+    SelectColor
 }

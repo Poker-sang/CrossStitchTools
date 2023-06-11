@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml.Media;
 using SixLabors.ImageSharp.PixelFormats;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -10,14 +11,12 @@ public class ColorGroup
     public ColorGroup(Rgba32 represent)
     {
         Represent = represent;
-        Set.Add(Represent);
+        _ = Set.Add(Represent);
     }
 
     public static bool RepresentEqual(ColorGroup? a, ColorGroup? b)
     {
-        if (a is null || b is null)
-            return false;
-        return a.Represent == b.Represent;
+        return a is not null && b is not null && a.Represent == b.Represent;
     }
 
     public Rgba32 Represent { get; set; }
@@ -28,13 +27,16 @@ public class ColorGroup
 
     public void Merge(ColorGroup group)
     {
-        Set.Add(group.Represent);
+        _ = Set.Add(group.Represent);
         Count += group.Count;
     }
 
-    private static int Pow2(int a) => a * a;
+    private static Vector3 ToVector3(Rgba32 color) => new(color.R, color.G, color.B);
 
-    public int GetErr(Rgba32 color) => (int)Vector4.DistanceSquared(color.ToVector4(), Represent.ToVector4());
+    public int GetErr(Rgba32 color)
+    {
+        return (int)Vector3.Distance(ToVector3(color), ToVector3(Represent));
+    }
 
     public string Name => $"{Represent.R:X2}{Represent.G:X2}{Represent.B:X2}";
 

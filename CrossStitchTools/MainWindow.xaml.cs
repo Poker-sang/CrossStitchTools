@@ -24,7 +24,7 @@ public sealed partial class MainWindow : Window
     {
         NavigationView.SettingsItem.To<NavigationViewItem>().Tag = typeof(SettingsPage);
 
-       NavigationHelper.GotoPage<IndexPage>();
+        NavigationHelper.GotoPage<IndexPage>();
         NavigationView.SelectedItem = NavigationView.MenuItems[0];
     }
 
