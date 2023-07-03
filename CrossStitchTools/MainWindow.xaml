@@ -6,48 +6,27 @@
     xmlns:helper="using:WinUI3Utilities"
     xmlns:local="using:CrossStitchTools"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:views="using:CrossStitchTools.Views"
     mc:Ignorable="d">
-    <Grid SizeChanged="OnSizeChanged">
-        <Border
-            x:Name="TitleBar"
-            Height="{x:Bind NavigationView.CompactPaneLength}"
-            VerticalAlignment="Top"
-            IsHitTestVisible="True">
+    <Grid Loaded="Loaded" SizeChanged="OnSizeChanged">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Height="32">
             <StackPanel
-                Margin="12"
+                Margin="4"
                 Orientation="Horizontal"
                 Spacing="14">
-                <FontIcon
-                    Width="25"
-                    Height="25"
-                    Glyph="&#xEA3A;" />
+                <SymbolIcon
+                    Width="24"
+                    Height="24"
+                    Symbol="Shuffle" />
                 <TextBlock
-                    x:Name="TitleTextBlock"
                     VerticalAlignment="Center"
                     Style="{StaticResource CaptionTextBlockStyle}"
                     Text="{x:Bind helper:CurrentContext.Title}" />
             </StackPanel>
         </Border>
-        <NavigationView
-            x:Name="NavigationView"
-            AlwaysShowHeader="True"
-            BackRequested="BackRequested"
-            DisplayModeChanged="{x:Bind helper:TitleBarHelper.DisplayModeChanged}"
-            IsBackButtonVisible="Visible"
-            IsTabStop="False"
-            IsTitleBarAutoPaddingEnabled="False"
-            ItemInvoked="ItemInvoked"
-            Loaded="Loaded"
-            PaneClosing="{x:Bind helper:TitleBarHelper.PaneClosing}"
-            PaneOpening="{x:Bind helper:TitleBarHelper.PaneOpening}">
-            <NavigationView.MenuItems>
-                <NavigationViewItem
-                    Content="主页"
-                    Icon="Home"
-                    Tag="{x:Bind views:IndexPage.TypeGetter}" />
-            </NavigationView.MenuItems>
-            <Frame x:Name="NavigateFrame" />
-        </NavigationView>
+        <Frame x:Name="NavigateFrame" Grid.Row="1" />
     </Grid>
 </Window>

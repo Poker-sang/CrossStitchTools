@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using WinUI3Utilities.Attributes;
 
 namespace CrossStitchTools;
@@ -5,7 +6,7 @@ namespace CrossStitchTools;
 [GenerateConstructor]
 public partial record AppConfig
 {
-    public int Theme { get; set; }
+    public ElementTheme Theme { get; set; } = ElementTheme.Light;
 
     public AppConfig() { }
 }

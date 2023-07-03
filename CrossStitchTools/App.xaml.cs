@@ -10,7 +10,7 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        CurrentContext.Title = nameof(CrossStitchTools);
+        CurrentContext.Title = "十字绣工具";
         AppContext.InitializeConfigurationContainer();
         AppConfig = AppContext.LoadConfiguration() is not { } appConfigurations ?
 #if FIRST_TIME
@@ -22,11 +22,14 @@ public partial class App : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        _ = new MainWindow();
-        AppHelper.Initialize(new()
+        var window = new MainWindow();
+        window.Initialize(new()
         {
             Size = WindowHelper.EstimatedWindowSize(),
-            TitleBarType = TitleBarHelper.TitleBarType.AppWindow
+            TitleBarType = TitleBarType.AppWindow,
+            BackdropType = BackdropType.MicaAlt
         });
+        window.SetAppWindowTheme(AppConfig.Theme);
+        window.Activate();
     }
 }

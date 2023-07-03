@@ -7,36 +7,52 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:CrossStitchTools.Models"
     xmlns:numberFormatting="using:Windows.Globalization.NumberFormatting"
-    xmlns:uiControls="using:CommunityToolkit.WinUI.UI.Controls"
-    Background="Transparent"
     NavigationCacheMode="Required"
     mc:Ignorable="d">
-    <uiControls:DockPanel>
-        <uiControls:DockPanel uiControls:DockPanel.Dock="Top">
-            <InfoBar />
-            <CommandBar Background="Transparent" OverflowButtonVisibility="Collapsed">
-                <AppBarButton Content="Folder" Tapped="BOpenClick" />
-                <AppBarButton
-                    x:Name="BAction"
-                    Content="Action"
-                    IsEnabled="False"
-                    Tapped="BActionClick" />
-                <AppBarToggleButton
-                    x:Name="BToggle"
-                    Content="Toggle"
-                    IsEnabled="False"
-                    Tapped="BToggleClick" />
-                <AppBarButton
-                    x:Name="BSave"
-                    Content="Save"
-                    IsEnabled="False"
-                    Tapped="BSaveClick" />
-            </CommandBar>
-        </uiControls:DockPanel>
-        <uiControls:DockPanel uiControls:DockPanel.Dock="Left">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <CommandBar
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            DefaultLabelPosition="Collapsed"
+            OverflowButtonVisibility="Collapsed">
+            <AppBarButton Tapped="BThemeChange">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE793;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton Tapped="BOpenClick">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE8B7;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton IsEnabled="{x:Bind _vm.IsLoaded, Mode=OneWay}" Tapped="BActionClick">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xEA3C;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarToggleButton IsEnabled="{x:Bind _vm.IsActed, Mode=OneWay}" Tapped="BToggleClick">
+                <AppBarToggleButton.Icon>
+                    <FontIcon Glyph="&#xE790;" />
+                </AppBarToggleButton.Icon>
+            </AppBarToggleButton>
+            <AppBarButton
+                Icon="Save"
+                IsEnabled="{x:Bind _vm.IsLoaded, Mode=OneWay}"
+                Tapped="BSaveClick" />
+        </CommandBar>
+        <StackPanel Grid.Row="1" Grid.Column="0">
             <NumberBox
                 x:Name="NbColor"
-                uiControls:DockPanel.Dock="Top"
                 Header="容差"
                 Minimum="1"
                 SmallChange="1"
@@ -51,7 +67,6 @@
             </NumberBox>
             <NumberBox
                 x:Name="NbCount"
-                uiControls:DockPanel.Dock="Top"
                 Header="保留数"
                 Minimum="1"
                 SmallChange="1"
@@ -66,7 +81,6 @@
             </NumberBox>
             <NumberBox
                 x:Name="NbPixelLength"
-                uiControls:DockPanel.Dock="Top"
                 Header="长缩比例"
                 Minimum="1"
                 SmallChange="1"
@@ -79,20 +93,25 @@
                     </numberFormatting:DecimalFormatter>
                 </NumberBox.NumberFormatter>
             </NumberBox>
-            <NumberBox
-                x:Name="NbBitmapScale"
-                uiControls:DockPanel.Dock="Top"
-                Header="放大倍数"
-                Value="{x:Bind BitmapScale, Mode=TwoWay}" />
-            <TextBlock x:Name="TbPixel" uiControls:DockPanel.Dock="Top" />
-            <TextBlock x:Name="TbColor" uiControls:DockPanel.Dock="Top" />
-            <TextBlock x:Name="TbPointer" uiControls:DockPanel.Dock="Top" />
-        </uiControls:DockPanel>
+            <NumberBox Header="放大倍数" Value="{x:Bind _vm.BitmapScale, Mode=TwoWay}">
+                <NumberBox.NumberFormatter>
+                    <numberFormatting:DecimalFormatter FractionDigits="2" IntegerDigits="1">
+                        <numberFormatting:DecimalFormatter.NumberRounder>
+                            <numberFormatting:IncrementNumberRounder Increment="{x:Bind local:IndexPage.Increment}" RoundingAlgorithm="RoundHalfUp" />
+                        </numberFormatting:DecimalFormatter.NumberRounder>
+                    </numberFormatting:DecimalFormatter>
+                </NumberBox.NumberFormatter>
+            </NumberBox>
+            <TextBlock x:Name="TbPixel" />
+            <TextBlock x:Name="TbColor" />
+            <TextBlock x:Name="TbPointer" />
+        </StackPanel>
         <ListView
             x:Name="ListView"
+            Grid.Row="1"
+            Grid.Column="2"
             Width="100"
-            uiControls:DockPanel.Dock="Right"
-            ItemsSource="{x:Bind ItemList, Mode=OneWay}">
+            ItemsSource="{x:Bind _vm.ItemList, Mode=OneWay}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:ColorGroup">
                     <StackPanel
@@ -108,30 +127,35 @@
         </ListView>
         <Canvas
             x:Name="Canvas"
+            Grid.Row="1"
+            Grid.Column="1"
             PointerMoved="CanvasOnPointerMoved"
             PointerWheelChanged="CanvasOnPointerWheelChanged"
             SizeChanged="CanvasOnSizeChanged">
             <Canvas.Clip>
                 <RectangleGeometry x:Name="RgCanvas" />
             </Canvas.Clip>
-            <uiControls:ImageEx
+            <Image
                 x:Name="IBitmap"
+                Canvas.Left="{x:Bind _vm.BitmapCanvasLeft, Mode=OneWay}"
+                Canvas.Top="{x:Bind _vm.BitmapCanvasTop, Mode=OneWay}"
                 RightTapped="IBitmapOnRightTapped"
+                Scale="{x:Bind _vm.Scale, Mode=OneWay}"
                 Stretch="None" />
             <Line
                 x:Name="LHorizontal"
                 IsHitTestVisible="False"
                 Opacity="0.5"
                 Stroke="White"
-                StrokeThickness="{x:Bind PixelActualLength, Mode=OneWay}"
+                StrokeThickness="{x:Bind _vm.PixelActualLength, Mode=OneWay}"
                 X1="0" />
             <Line
                 x:Name="LVertical"
                 IsHitTestVisible="False"
                 Opacity="0.5"
                 Stroke="White"
-                StrokeThickness="{x:Bind PixelActualLength, Mode=OneWay}"
+                StrokeThickness="{x:Bind _vm.PixelActualLength, Mode=OneWay}"
                 Y1="0" />
         </Canvas>
-    </uiControls:DockPanel>
+    </Grid>
 </Page>
